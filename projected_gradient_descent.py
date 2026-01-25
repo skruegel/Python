@@ -46,7 +46,7 @@ c = 0.5
 x_start = np.random.rand(N)
 
 x_opt, losses = projected_gradient_descent(y, A, alpha, c, x_start)
-
+#comment
 # Visualization for "Experiments" Section 
 plt.figure(figsize=(8, 5))
 plt.plot(losses)
