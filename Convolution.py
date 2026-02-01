@@ -118,25 +118,72 @@ y = np.zeros(N)
 y[8:17] = 1   # Indices 8 to 16
 y[32:49] = 1  # Indices 32 to 48
 
+
+def J(x, y, A, alpha=20, c=0.5):
+    """
+    Implements the cost function J(x) = ||y - f_theta(x)||_2^2.
+    
+    Parameters:
+    - x: The input vector we are evaluating (the 'candidate' signal).
+    - y: The target binary vector (the 'ground truth').
+    - A: The N x N convolution matrix.
+    - alpha: Stiffness parameter for the activation function h.
+    - c: Cutoff threshold for the activation function h.
+    """
+    # 1. Compute f_theta(x) = h(Ax)
+    z = np.dot(A, x)
+    f_x = 1 / (1 + np.exp(-alpha * (z - c)))
+    
+    # 2. Compute the residual (difference)
+    residual = y - f_x
+    
+    # 3. Return the squared L2 norm (sum of squares)
+    return np.sum(residual**2)
+
+# --- Example Usage ---
+# Assuming y and A are already defined from previous steps:
+# current_cost = J(x_candidate, y, A_matrix, alpha=20, c=0.5)
+
 # Create matrix A and compute f(y)
 f_y = h(np.dot(A, y), alpha=20, c=0.5)
 
-# --- 3. Plotting ---
-plt.figure(figsize=(12, 6))
+# # --- 3. Plotting ---
+# plt.figure(figsize=(12, 6))
 
-# Use drawstyle='steps-mid' to show the discrete binary nature of y
-plt.plot(range(N), y, label='Original $y$ (Binary)', color='blue', 
-         linewidth=2, linestyle='--', drawstyle='steps-mid', alpha=0.6)
+# # Use drawstyle='steps-mid' to show the discrete binary nature of y
+# plt.plot(range(N), y, label='Original $y$ (Binary)', color='blue', 
+#          linewidth=2, linestyle='--', drawstyle='steps-mid', alpha=0.6)
 
-# Plot f(y) as a solid line
-plt.plot(range(N), f_y, label='$f_{\\theta}(y) = h(Ay)$', color='red', 
-         linewidth=2.5)
+# # Plot f(y) as a solid line
+# plt.plot(range(N), f_y, label='$f_{\\theta}(y) = h(Ay)$', color='red', 
+#          linewidth=2.5)
 
-plt.title('Comparison: Binary Vector $y$ vs. Transformed $f_{\\theta}(y)$')
-plt.xlabel('Vector Index')
-plt.ylabel('Value')
-plt.legend(loc='upper right')
+# plt.title('Comparison: Binary Vector $y$ vs. Transformed $f_{\\theta}(y)$')
+# plt.xlabel('Vector Index')
+# plt.ylabel('Value')
+# plt.legend(loc='upper right')
+# plt.grid(True, linestyle=':', alpha=0.7)
+# plt.ylim(-0.1, 1.1)
+
+# plt.show()
+def J(x_vec, y, A, alpha=20, c=0.5):
+    f_x = h(np.dot(A, x_vec), alpha, c)
+    return np.sum((y - f_x)**2)
+
+# --- 3. Varying x (as a scalar multiplier of a vector of ones) ---
+gamma_range = np.linspace(0, 1.2, 100)
+costs = [J(np.ones(N) * g, y, A) for g in gamma_range]
+
+# --- 4. Plotting ---
+plt.figure(figsize=(10, 6))
+plt.plot(gamma_range, costs, color='purple', linewidth=2, label='$J(\gamma \cdot \mathbf{1})$')
+
+# Add marker for the cutoff c
+plt.axvline(x=0.5, color='red', linestyle='--', alpha=0.6, label='Cutoff $c=0.5$')
+
+plt.title(r'Cost Function $J(x)$ Profile')
+plt.xlabel(r'Scalar Input Magnitude ($\gamma$)')
+plt.ylabel(r'Cost Value $J(x)$')
+plt.legend()
 plt.grid(True, linestyle=':', alpha=0.7)
-plt.ylim(-0.1, 1.1)
-
 plt.show()
